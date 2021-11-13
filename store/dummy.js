@@ -11,6 +11,8 @@ async function query(table, q) {
     let col = await list(table);
     let keys = Object.keys(q);
     let key = keys[0]
+    console.log(q, "q")
+    console.log(key, "q")
     return col.filter(item => item[key] === q[key])[0] || null;
 }
 

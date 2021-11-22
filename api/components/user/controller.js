@@ -17,26 +17,48 @@ module.exports = function (injectedStore) {
     async function upsert(body) {
         const user = {
             name: body.name,
-            username: body.username
+            username: body.username,
         }
+        let new_record = true;
+
         if (body.id) {
             user.id = body.id;
+            new_record = false;
+
         } else {
-            user.id = nanoid()
+            user.id = nanoid();
         }
+
         if (body.password || body.username) {
+            console.log("upserting auth")
             await auth.upsert({
                 id: user.id,
                 username: user.username,
                 password: body.password,
-            });
+            })
         }
-        return store.upsert(TABLA, user);
+
+        return store.upsert(TABLA, user, new_record);
+    }
+    function follow(from, to) {
+        return store.upsert(TABLA + '_follow', {
+            user_from: from,
+            user_to: to,
+        }, true)
+    }
+
+    async function following(user) {
+        const join = {}
+        join[TABLA] = 'user_to';
+        const query = { user_from: user };
+        return await store.query(TABLA + '_follow', query, join)
     }
 
     return {
         list,
         get,
         upsert,
+        follow,
+        following
     }
 }

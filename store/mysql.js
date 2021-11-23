@@ -1,7 +1,6 @@
 const mysql = require('mysql');
 
 const config = require('../config')
-
 const dbconfig = {
     host: config.mysql.host,
     user: config.mysql.user,
@@ -53,6 +52,7 @@ function get(table, id) {
 }
 
 function insert(table, data) {
+    console.log("inserting " + data)
     return new Promise((resolve, reject) => {
         connection.query(`INSERT INTO ${table} SET ? `, data, (err, result) => {
             if (err) return reject(err);
@@ -61,6 +61,7 @@ function insert(table, data) {
     })
 }
 function update(table, data) {
+    console.log("updating " + data)
     return new Promise((resolve, reject) => {
         connection.query(`UPDATE ${table} SET ? WHERE id=?`, [data, data.id], (err, result) => {
             if (err) return reject(err);
@@ -70,6 +71,7 @@ function update(table, data) {
 }
 
 function upsert(table, data, isNew) {
+    console.log("Upserting no microservice")
     if (data && isNew) {
         return insert(table, data);
     } else {
@@ -85,13 +87,16 @@ function query(table, query, join) {
             const val = join[key];
             joinQuery = `JOIN ${key} ON ${table}.${val} = ${key}.id`
         }
+        // let query = 
+        console.log(query)
+        console.log(`SELECT * FROM ${table} ${joinQuery} WHERE ${table}.?`)
         connection.query(`SELECT * FROM ${table} ${joinQuery} WHERE ${table}.?`, query, (err, res) => {
             if (err) {
                 console.log(err);
                 return reject;
             }
-            console.log(res[0])
-            return resolve(res[0] || null)
+            console.log(res);
+            return resolve(res || null)
         })
     })
 }
@@ -100,6 +105,7 @@ module.exports = {
     list,
     get,
     upsert,
+    insert,
     // remove,
     query,
 }

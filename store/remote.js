@@ -5,12 +5,40 @@ function createRemoteDb(host, port) {
     function list(table) {
         return req('GET', table);
     }
-    // function get(table)
-    // function upsert(table, data)
-    // function query(table, query, join)
+    function get(table, id) {
+        return req('GET', table, id);
+    }
+
+    function insert(table, data) {
+        return req('POST', table, data);
+    }
+
+    function update(table, data) {
+        return req('PUT', table, data);
+    }
+
+
+    function upsert(table, data, isNew) {
+        if (data && isNew) {
+            return insert(table, data);
+        } else {
+            return update(table, data);
+        }
+    }
+
+    function query(table, query, join) {
+        return req('POST', table + '/query', { query, join });
+    }
+
     function req(method, table, data) {
+        console.log(method, table, data);
         let url = URL + '/' + table;
         body = '';
+        if (method === 'GET' && data) {
+            url += '/' + data;
+        } else if (data) {
+            body = JSON.stringify(data);
+        }
         return new Promise((resolve, reject) => {
             request({
                 method,
@@ -32,6 +60,9 @@ function createRemoteDb(host, port) {
     }
     return {
         list,
+        get,
+        upsert,
+        query
     }
 }
 

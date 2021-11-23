@@ -24,14 +24,14 @@ module.exports = function (injectedStore) {
         // return data;
     }
 
-    async function upsert(data) {
-        let new_record = true
+    async function upsert(data, new_record) {
+        // let new_record = true
         const authData = {
             id: data.id
         }
         if (data.id) {
             authData.username = data.username;
-            new_record = false;
+            // new_record = false;
         }
         if (data.password) {
             authData.password = await bcrypt.hash(data.password, 5);
